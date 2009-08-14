@@ -16,7 +16,7 @@
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package com.penguin-pirates.bencode
+package org.saunter.bencode
 
 import scala.util.parsing.combinator._
 import scala.util.parsing.combinator.syntactical._

@@ -1,6 +1,4 @@
-/* Scala Bencode handling.
- *
- * Copyright (C) 2009 Thomas Rampelberg <pyronicide@gmail.com>
+/* Copyright (C) 2009 Thomas Rampelberg <pyronicide@gmail.com>
 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +14,11 @@
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package com.penguin-pirates.bencode
+/* Bencoding tools. The parser implements a full bencode grammar (string,
+ * integer, list, dictionary).
+ */
+// XXX - NEED UNIT TESTS!!!
+package org.saunter.bencode
 
 import scala.collection.immutable._
 import scala.util.parsing.combinator._
@@ -55,3 +57,4 @@ object Bencode extends StdTokenParsers {
   def dict = "d" ~> rep1(str ~ doc) <~ "e" ^^ {
     case x => HashMap(x map { case x ~ y => (x, y) }: _*) }
 }
+
