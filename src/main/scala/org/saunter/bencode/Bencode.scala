@@ -82,6 +82,7 @@ object Bencode extends StdTokenParsers {
 
   def dictionary(input: Map[String, _]): String =
     "d" + input.map(
-      x => (x._1, encode(x._2))).flatMap( x => x._1 + x._2 ).mkString + "e"
+      x => (string(x._1), encode(x._2))).flatMap(
+        x => x._1 + x._2 ).mkString + "e"
 }
 
