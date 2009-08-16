@@ -56,5 +56,32 @@ object Bencode extends StdTokenParsers {
   def list = "l" ~> rep1(doc) <~ "e" ^^ { case x => x }
   def dict = "d" ~> rep1(str ~ doc) <~ "e" ^^ {
     case x => HashMap(x map { case x ~ y => (x, y) }: _*) }
+
+  /**
+   * Generate a bencoded string from scala objects. This can handle the
+   * entire bencoding grammar which means that Int, String, List and Map can be
+   * encoded.
+   */
+  def encode(input: Any): String =
+    input match {
+      case x: Int => int(x)
+      case x: String => string(x)
+      case x: List[_] => list(x)
+      case x: Map[String, _] => dictionary(x)
+      case _ => ""
+    }
+
+  def int(input: Int): String =
+    "i" + input + "e"
+
+  def string(input: String): String =
+    input.length + ":" + input
+
+  def list(input: List[_]): String =
+    "l" + input.map( x => encode(x)).mkString + "e"
+
+  def dictionary(input: Map[String, _]): String =
+    "d" + input.map(
+      x => (x._1, encode(x._2))).flatMap( x => x._1 + x._2 ).mkString + "e"
 }
 
