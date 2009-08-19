@@ -20,9 +20,48 @@
 // XXX - NEED UNIT TESTS!!!
 package org.saunter.bencode
 
+import scala.collection.mutable.ListBuffer
 import scala.util.parsing.combinator.{Parsers, ImplicitConversions}
 
-object BencodeDecoder extends Parsers with ImplicitConversions {
+/**
+ * Most of the standard rep* methods end up using while loops at their base to
+ * make sure StackOverflows don't happen. While from the command line you don't
+ * get a StackOverflow, for some reason lift/jetty likes to throw them when
+ * parsing simple torrents. This generator takes the recursion and makes it a
+ * simple while loop.
+ */
+trait ParserGenerator extends Parsers {
+  override def repN[T](n: Int, p: => Parser[T]): Parser[List[T]] = Parser {
+    in0 =>
+      val xs = new scala.collection.mutable.ListBuffer[T]
+      var in = in0
+      var i = n
+
+      if (n == 0) {
+        return success(List())
+      }
+      var res = p(in)
+      while(res.successful && i > 0) {
+        i -= 1
+        xs += res.get
+        in = res.next
+        res = p(in)
+      }
+
+      res match {
+        case e: Error => e
+        case _ =>
+          if (!xs.isEmpty) {
+            Success(xs.toList, in)
+          }
+          else {
+            Failure(res.asInstanceOf[NoSuccess].msg, in0)
+          }
+      }
+  }
+}
+
+object BencodeDecoder extends ParserGenerator with ImplicitConversions {
   implicit def strToInput(in: String): Input =
     new scala.util.parsing.input.CharArrayReader(in.toCharArray)
   type Elem = Char

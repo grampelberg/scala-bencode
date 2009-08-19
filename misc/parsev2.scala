@@ -13,10 +13,43 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+import scalax.io.InputStreamResource
 
+import scala.collection.mutable.ListBuffer
 import scala.util.parsing.combinator.{Parsers, ImplicitConversions}
 
-object BencodeDecoder extends Parsers with ImplicitConversions {
+trait ParserGenerator extends Parsers {
+  override def repN[T](n: Int, p: => Parser[T]): Parser[List[T]] = Parser {
+    in0 =>
+      val xs = new scala.collection.mutable.ListBuffer[T]
+      var in = in0
+      var i = n
+
+      if (n == 0) {
+        return success(List())
+      }
+      var res = p(in)
+      while(res.successful && i > 0) {
+        i -= 1
+        xs += res.get
+        in = res.next
+        res = p(in)
+      }
+
+      res match {
+        case e: Error => e
+        case _ =>
+          if (!xs.isEmpty) {
+            Success(xs.toList, in)
+          }
+          else {
+            Failure(res.asInstanceOf[NoSuccess].msg, in0)
+          }
+      }
+  }
+}
+
+object BencodeDecoder extends ParserGenerator with ImplicitConversions {
   implicit def strToInput(in: String): Input =
     new scala.util.parsing.input.CharArrayReader(in.toCharArray)
   type Elem = Char
@@ -82,3 +115,5 @@ object BencodeEncoder {
       x => (string(x._1), encode(x._2))).flatMap(
         x => x._1 + x._2 ).mkString + "e"
 }
+
+println(BencodeDecoder.decode(InputStreamResource.file("../swarmstat/data/test.torrent").reader.slurp))
