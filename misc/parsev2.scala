@@ -14,12 +14,6 @@
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/* Bencoding tools. The parser implements a full bencode grammar (string,
- * integer, list, dictionary).
- */
-// XXX - NEED UNIT TESTS!!!
-package org.saunter.bencode
-
 import scala.util.parsing.combinator.{Parsers, ImplicitConversions}
 
 object BencodeDecoder extends Parsers with ImplicitConversions {
