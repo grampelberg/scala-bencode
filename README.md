@@ -8,16 +8,16 @@ make sure the recursion limit of the JVM isn't reached.
 
 To use the decoder:
 
-import org.saunter.bencode._
+    import org.saunter.bencode._
 
-// Use your input library of choice.
-import scalax.io._
+    // Use your input library of choice.
+    import scalax.io._
 
-val my_obj = BencodeDecoder.decode(
-    InputStreamResource.file("test.torrent").reader.slurp)
+    val my_obj = BencodeDecoder.decode(
+        InputStreamResource.file("test.torrent").reader.slurp)
 
 For the encoder:
 
-import org.saunter.bencode._
+    import org.saunter.bencode._
 
-val encoded_str = BencodeEncoder.encode(List("foo", 10))
+    val encoded_str = BencodeEncoder.encode(List("foo", 10))
