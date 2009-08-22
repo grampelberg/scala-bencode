@@ -83,9 +83,12 @@ object BencodeDecoder extends ParserGenerator with ImplicitConversions {
   lazy val digit = elem("digit", c => c >= '0' && c <= '9')
 
   // Strings 3:foo -> foo
-  lazy val string: Parser[String] = len >> ( stringN(_) )
+  lazy val string: Parser[String] =
+    ('0' <~ ':' ^^ { case x => "" }
+     | len >> ( stringN(_) ) )
   lazy val len = int <~ ':'
-  def stringN(n: Int) =  repN(n, char) ^^ { case x => x.mkString }
+  def stringN(n: Int) =
+    repN(n, char) ^^ { case x => x.mkString }
   lazy val char = elem("any char", c => true)
 
   // Lists li1ei2ee -> [1, 2]
