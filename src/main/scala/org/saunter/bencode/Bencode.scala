@@ -75,10 +75,10 @@ object BencodeDecoder extends ParserGenerator with ImplicitConversions {
   lazy val doc: Parser[Any] = number | string | list | dict
 
   // Numbers i-10e -> -10i
-  lazy val number: Parser[Int] = 'i' ~> int <~ 'e'
+  lazy val number: Parser[Long] = 'i' ~> int <~ 'e'
   lazy val int =
-    ( digits ^^ { case x => x.mkString.toInt } ) |
-    ( '-' ~> digits ^^ { case x => x.mkString.toInt * -1 } )
+    ( digits ^^ { case x => x.mkString.toLong } ) |
+    ( '-' ~> digits ^^ { case x => x.mkString.toLong * -1 } )
   lazy val digits = rep1(digit)
   lazy val digit = elem("digit", c => c >= '0' && c <= '9')
 
@@ -87,8 +87,8 @@ object BencodeDecoder extends ParserGenerator with ImplicitConversions {
     ('0' <~ ':' ^^ { case x => "" }
      | len >> ( stringN(_) ) )
   lazy val len = int <~ ':'
-  def stringN(n: Int) =
-    repN(n, char) ^^ { case x => x.mkString }
+  def stringN(n: Long) =
+    repN(n.toInt, char) ^^ { case x => x.mkString }
   lazy val char = elem("any char", c => true)
 
   // Lists li1ei2ee -> [1, 2]
@@ -110,6 +110,7 @@ object BencodeEncoder {
   def encode(input: Any): String =
     input match {
       case x: Int => int(x)
+      case x: Long => int(x)
       case x: String => string(x)
       case x: List[_] => list(x)
       case x: Map[String, _] => dictionary(x)
@@ -117,6 +118,9 @@ object BencodeEncoder {
     }
 
   def int(input: Int): String =
+    "i" + input + "e"
+
+  def int(input: Long): String =
     "i" + input + "e"
 
   def string(input: String): String =
