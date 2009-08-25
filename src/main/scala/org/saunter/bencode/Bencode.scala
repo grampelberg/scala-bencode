@@ -96,7 +96,8 @@ object BencodeDecoder extends ParserGenerator with ImplicitConversions {
 
   // Dictionaries d3:fooi1ee -> { "foo": 1 }
   lazy val dict: Parser[Map[String, Any]] =
-    'd' ~> members <~ 'e' ^^ { case xs => Map(xs :_*) }
+    ( 'd' ~> members <~ 'e' ^^ { case xs => Map(xs :_*) } |
+      'd' ~ 'e' ^^ { case x ~ y => Map() } )
   lazy val members = rep1(pair)
   lazy val pair: Parser[(String, Any)] = string ~ doc ^^ { case x ~ y => (x,y) }
 }
