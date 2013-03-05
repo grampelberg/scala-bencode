@@ -131,7 +131,7 @@ object BencodeEncoder {
     "l" + input.map( x => encode(x)).mkString + "e"
 
   def dictionary(input: Map[String, _]): String =
-    "d" + input.toList.sort( (x,y) => x._1<y._1 ).map(
+    "d" + input.toList.sortWith( (x,y) => x._1<y._1 ).map(
       x => (string(x._1), encode(x._2))).flatMap(
         x => x._1 + x._2 ).mkString + "e"
 }
